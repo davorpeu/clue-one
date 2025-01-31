@@ -1,11 +1,13 @@
 <script setup>
-import {ref} from 'vue';
+import { ref } from 'vue';
 
 // Initial data
 const suspects = ref(['Miss Scarlett', 'Colonel Mustard', 'Mrs. White', 'Mr. Green', 'Mrs. Peacock', 'Professor Plum']);
 const weapons = ref(['Wrench', 'Candlestick', 'Lead Pipe', 'Knife', 'Rope']);
 const rooms = ref(['Ballroom', 'Billiard Room', 'Conservatory', 'Dining Room', 'Hall', 'Kitchen', 'Library', 'Lounge', 'Secret Passage', 'Study']);
-const removedRooms = ref([]); // New ref to store removed rooms
+const removedRooms = ref([]); // Store removed rooms
+const culprit = ref({ suspect: '', weapon: '', room: '' }); // Store the culprit details
+const showCulpritPopup = ref(false); // Control popup visibility
 
 // Function to shuffle an array
 const shuffle = (array) => {
@@ -16,7 +18,7 @@ const shuffle = (array) => {
   return array;
 };
 
-// Remove 2 rooms and save them to removedRooms
+// Remove 2 random rooms and save them to removedRooms
 const removeRooms = () => {
   // Generate two unique random indices
   const index1 = Math.floor(Math.random() * rooms.value.length);
@@ -33,7 +35,24 @@ const removeRooms = () => {
   rooms.value.splice(Math.min(index1, index2), 1);
 };
 
-// Shuffle all items and distribute into 4 piles
+// Remove a random suspect, weapon, and room and store them in culprit
+const setCulprit = () => {
+  const randomSuspectIndex = Math.floor(Math.random() * suspects.value.length);
+  const randomWeaponIndex = Math.floor(Math.random() * weapons.value.length);
+  const randomRoomIndex = Math.floor(Math.random() * rooms.value.length);
+
+  culprit.value = {
+    suspect: suspects.value[randomSuspectIndex],
+    weapon: weapons.value[randomWeaponIndex],
+    room: rooms.value[randomRoomIndex],
+  };
+
+  // Remove the selected items from their respective arrays
+  suspects.value.splice(randomSuspectIndex, 1);
+  weapons.value.splice(randomWeaponIndex, 1);
+  rooms.value.splice(randomRoomIndex, 1);
+};
+
 // Shuffle all items and distribute into 4 piles
 const distributeItems = () => {
   const allItems = [...suspects.value, ...weapons.value, ...rooms.value];
@@ -59,9 +78,15 @@ const togglePileVisibility = (index) => {
   pileVisibility.value[index] = !pileVisibility.value[index];
 };
 
-// Remove rooms and redistribute items
+// Remove rooms, set culprit, and redistribute items
 removeRooms();
+setCulprit();
 piles.value = distributeItems();
+
+// Toggle culprit popup visibility
+const toggleCulpritPopup = () => {
+  showCulpritPopup.value = !showCulpritPopup.value;
+};
 </script>
 
 <template>
@@ -95,6 +120,25 @@ piles.value = distributeItems();
         </div>
       </section>
     </div>
+
+
+    <!-- Culprit Section -->
+    <section>
+      <h2>Culprit</h2>
+      <div v-if="showCulpritPopup" class="popup-overlay">
+        <ul class="popup-content">
+          <li><strong>Suspect:</strong> {{ culprit.suspect }}</li>
+          <li><strong>Weapon:</strong> {{ culprit.weapon }}</li>
+          <li><strong>Room:</strong> {{ culprit.room }}</li>
+          <button @click="toggleCulpritPopup">Close</button>
+        </ul>
+      </div>
+
+      <button v-if="!showCulpritPopup" @click="toggleCulpritPopup">Show Culprit</button>
+    </section>
+
+    <!-- Culprit Popup -->
+
   </main>
 </template>
 
