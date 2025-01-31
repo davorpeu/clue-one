@@ -6,10 +6,10 @@
   "homepage": "https://davorpeu.github.io/clue-one",
   "scripts": {
     "dev": "vite",
-    "predeploy": "npm run build",
-    "deploy": "gh-pages -d dist",
-    "build": "vue-cli-service build",
+    "build": "vite build",
     "preview": "vite preview",
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d dist -b gh-pages",
     "lint": "eslint . --fix",
     "format": "prettier --write src/"
   },
